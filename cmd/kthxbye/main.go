@@ -16,6 +16,14 @@ var (
 		Name: "kthxbye_cycles_total",
 		Help: "The total number of silence check cycles",
 	})
+	metricsCycleFailrues = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "kthxbye_cycles_failed_total",
+		Help: "The total number of failed cycles",
+	})
+	metricsCycleStatus = promauto.NewGauge(prometheus.GaugeOpts{
+		Name: "kthxbye_last_cycle_success",
+		Help: "Status of the last cycle, 0: failure, 1: success",
+	})
 	metricsSincesExtended = promauto.NewCounter(prometheus.CounterOpts{
 		Name: "kthxbye_silences_extended_total",
 		Help: "The total number of silence that got extended",

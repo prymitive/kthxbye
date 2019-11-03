@@ -61,10 +61,15 @@ func extendACKs(cfg *ackConfig) error {
 }
 
 func ackLoop(cfg *ackConfig) {
+	metricsCycleStatus.Set(1)
 	for {
 		err := extendACKs(cfg)
 		if err != nil {
 			log.Printf("Failed to process silences: %s", err)
+			metricsCycleFailrues.Inc()
+			metricsCycleStatus.Set(0)
+		} else {
+			metricsCycleStatus.Set(1)
 		}
 		metricsCycles.Inc()
 		time.Sleep(cfg.loopInterval)
