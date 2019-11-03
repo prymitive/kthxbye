@@ -1,0 +1,19 @@
+os: linux
+language: go
+go: "1.13.4"
+go_import_path: github.com/prymitive/kthxbye
+env:
+  - GO111MODULE=on
+
+jobs:
+  include:
+    - stage: Test
+      name: Build the binary
+      script:
+        - go build ./...
+
+    - stage: Test
+      name: Lint code
+      script:
+        - go install github.com/golangci/golangci-lint/cmd/golangci-lint
+        - golangci-lint run
