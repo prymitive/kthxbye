@@ -17,3 +17,10 @@ jobs:
       script:
         - go install github.com/golangci/golangci-lint/cmd/golangci-lint
         - golangci-lint run
+
+    - stage: Test
+      name: Verify go.sum
+      script:
+        - travis_retry go get -d -v ./...
+        - travis_retry go mod tidy
+        - git diff --exit-code
