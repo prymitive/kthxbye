@@ -47,8 +47,8 @@ jobs:
         # DOCKER_PASSWORD
         - secure: "ZQn5dOcXevT+wZSEEbG+i+nIKsc1pPu8USHjo/hD8gO2+8mTULokqaBZxTN7R/CnkMfa64/58Y8EdajCNbU+oaOHyPGN96ocVLkMkr2/tOY27b0gdkE7+/f+LujnhFcTWshG4jKmtF+332N4JPnCLgyqUpcbknwFmI+MS06+gs7bKQyWP76HzQ9kUvM22q2vU8W3AkvRcmY3bbFB3i7/8Gdtd6QV7lKMek6Pqo1fT8M/ieBBSNkdb2XwHXN3og11McelB/7ib4Kbt6eLibDcZwUpJ8u9Z6hTbOPGBlp6TAtUis8ippiVjGLrrGMN83UiZSBAgieGvQ24wG5dRQGKch/S+y21rM61a9WDL0iCGFqvsw6GW5ZStmppx+RyD3TQ8s/zVtDcC3nvZyHD+dfVzLxYiANGXAYMNltJPC6T57E4w7cCgZ0pL0xiJWRXeq3P9pkBCd+7qNey496ifdg2SANQytx6rA8uj2N8NeAWqBirM/bFewqpCbAvIiLnB2NSKrIP4STNLYaeoH7Y1VIIrCcCrLPd6tap8H6i2H6JN1KT8kJ464c3nVen52NbhYliOOw/B/2S9TFeNaNwgdflnlsXWIAUMGXbK0NFUTUGCOypb4z3Dv9E7E71IPkYtlAC7HWl0UV5oQlkQjjzch0gJp8RnuMW8inLer47LXxm5Yg="
       script:
-        - export VERSION=$(shell git describe --tags --always --dirty='-dev')
-        - export LOCAL_IMAGE="karma:${VERSION}"
+        - export VERSION=$(git describe --tags --always --dirty='-dev')
+        - export LOCAL_IMAGE="kthxbye:${VERSION}"
         - export DOCKER_USERNAME=lmierzwa
         - export DOCKER_IMAGE=kthxbye
         - export IMAGE_NAME="${DOCKER_USERNAME}/${DOCKER_IMAGE}"
