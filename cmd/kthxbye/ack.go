@@ -42,13 +42,17 @@ func extendACKs(cfg *ackConfig) error {
 			}
 		}
 		if usedBy > 0 {
-			//fmt.Printf("%s is silencing %d alert(s)\n", *sil.ID, usedBy)
 			if time.Time(*sil.EndsAt).Before(extendIfBefore) {
-				log.Printf("%s expires in %s and matches %d alert(s), extending it by %s",
-					*sil.ID, time.Time(*sil.EndsAt).Sub(time.Now().UTC()), usedBy, cfg.extendBy)
-				endsAt := strfmt.DateTime(time.Now().UTC().Add(cfg.extendBy))
-				sil.EndsAt = &endsAt
-				updateSilence(ctx, cfg, sil)
+				duration := time.Time(*sil.EndsAt).Sub(time.Time(*sil.StartsAt))
+				if cfg.maxDuration > 0 && duration > cfg.maxDuration {
+					log.Printf("%s is used by %d alert(s) but it already reached the maximum duration (%s), letting it expire", *sil.ID, usedBy, duration)
+				} else {
+					log.Printf("%s expires in %s and matches %d alert(s), extending it by %s",
+						*sil.ID, time.Time(*sil.EndsAt).Sub(time.Now().UTC()), usedBy, cfg.extendBy)
+					endsAt := strfmt.DateTime(time.Now().UTC().Add(cfg.extendBy))
+					sil.EndsAt = &endsAt
+					updateSilence(ctx, cfg, sil)
+				}
 			}
 		} else {
 			log.Printf("%s is not used by any alert, letting it expire", *sil.ID)
