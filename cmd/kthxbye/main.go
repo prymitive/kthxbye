@@ -45,6 +45,7 @@ type ackConfig struct {
 	extendIfExpiringIn   time.Duration
 	extendBy             time.Duration
 	extendWithPrefix     string
+	maxDuration          time.Duration
 }
 
 func main() {
@@ -57,6 +58,7 @@ func main() {
 	flag.DurationVar(&cfg.extendIfExpiringIn, "extend-if-expiring-in", time.Duration(time.Minute*5), "Extend silences that are about to expire in the next DURATION seconds")
 	flag.DurationVar(&cfg.extendBy, "extend-by", time.Duration(time.Minute*15), "Extend silences by adding DURATION seconds")
 	flag.StringVar(&cfg.extendWithPrefix, "extend-with-prefix", "ACK!", "Extend silences with comment starting with PREFIX string")
+	flag.DurationVar(&cfg.maxDuration, "max-duration", 0, "Maximum duration of a silence, it won't be extended anymore after reaching it")
 
 	flag.Parse()
 
