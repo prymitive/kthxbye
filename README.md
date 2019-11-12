@@ -85,7 +85,26 @@ in the next 90 seconds.
 `-extend-by` tells kthxbye how much duration should be added to a silence when
 it's extended. Setting it to `10m` would tell kthxbye that exteding a silence
 would update it to expire 10 minutes from now.
+`-max-duration` can be used to limit maximum duration a silence can reach, if
+set to a non-zero value it will let kthxbye to extend silence duration only if
+total duration (from the initial start time to the current expiry time) is less
+than `-max-duration` value.
 
 By default kthxbye will wake up and inspect silences every minute, you can
 customize it by passing `-interval` flag. Setting it to `30s` would tell kthxbye
 to wake up every 30 seconds.
+
+It's recommended to run a single kthxbye instance per Alertmanager cluster.
+If there are multiple instances running there will be a risk of races when
+updating silences - two (or more) kthxbye instances might try to update the
+same silence and, because Alertmanager expires the silence that's being updated
+and creates a new silence with new values, it can cause updated silence to be
+forked into two new silences.
+kthxbye can tolerate some downtime, with default settings it only considers
+silences with less than 5 minutes left, which means that it only needs to
+run once during those 5 minutes to update such silence. This applies to each
+silence individually, and they are unlikely to expire in the same time, so in
+reality more than one execution per 5 minutes is required, but it means that
+small amount of downtime that might be needed to restart kthxbye on another
+k8s/mesos node (for cloud deployments) if the primary crashes is likely to be
+invisible to the user.
