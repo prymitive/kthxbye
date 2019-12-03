@@ -1,4 +1,6 @@
 # kthxbye
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fprymitive%2Fkthxbye.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fprymitive%2Fkthxbye?ref=badge_shield)
+
 
 kthxbye is a simple daemon that works as a sidecar for
 [Prometheus Alertmanager](https://github.com/prometheus/alertmanager) and will automatically extend expiring silences.
@@ -108,3 +110,7 @@ reality more than one execution per 5 minutes is required, but it means that
 small amount of downtime that might be needed to restart kthxbye on another
 k8s/mesos node (for cloud deployments) if the primary crashes is likely to be
 invisible to the user.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fprymitive%2Fkthxbye.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fprymitive%2Fkthxbye?ref=badge_large)
