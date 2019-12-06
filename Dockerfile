@@ -1,4 +1,4 @@
-FROM golang:1.13.4-alpine as go-builder
+FROM golang:1.13.5-alpine as go-builder
 RUN apk add --update make git
 COPY go.mod /src/go.mod
 COPY go.sum /src/go.sum
