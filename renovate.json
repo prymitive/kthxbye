@@ -1,17 +1,8 @@
 {
-  "extends": [
-    "config:base"
-  ],
+  "extends": ["config:base"],
   "travis": {
     "enabled": true
   },
-  "postUpdateOptions": [
-    "gomodTidy"
-  ],
-  "patch": {
-    "automerge": true
-  },
-  "devDependencies": {
-    "automerge": true
-  }
+  "postUpdateOptions": ["gomodTidy"],
+  "automerge": true
 }
