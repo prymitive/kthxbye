@@ -90,6 +90,10 @@ set to a non-zero value it will let kthxbye to extend silence duration only if
 total duration (from the initial start time to the current expiry time) is less
 than `-max-duration` value.
 
+Note: duration values must be compatible with Go
+[ParseDuration](https://golang.org/pkg/time/#ParseDuration) and so currently
+valid time units are "ns", "us" (or "µs"), "ms", "s", "m", "h".
+
 By default kthxbye will wake up and inspect silences every minute, you can
 customize it by passing `-interval` flag. Setting it to `30s` would tell kthxbye
 to wake up every 30 seconds.
