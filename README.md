@@ -66,7 +66,7 @@ $ go build ./...
 Start kthxbye and pass the address of Alertmanager you want it to manage.
 
 ```shell
-$ kthxbye -alertmanager.addr alertmanager.example.com:9093
+$ kthxbye -alertmanager.uri http://alertmanager.example.com:9093
 ```
 
 By default kthxbye will only extend silences with comment starting with `ACK!`,

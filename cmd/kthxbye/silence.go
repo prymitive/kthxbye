@@ -14,7 +14,7 @@ func querySilences(ctx context.Context, cfg *ackConfig) ([]*models.GettableSilen
 
 	silenceParams := silence.NewGetSilencesParams().WithContext(ctx)
 
-	amclient := newAMClient(cfg.alertmanagerHostPort, cfg.alertmanagerAPIPath)
+	amclient := newAMClient(cfg.alertmanagerURI)
 
 	getOk, err := amclient.Silence.GetSilences(silenceParams)
 	if err != nil {
@@ -37,7 +37,7 @@ func updateSilence(ctx context.Context, cfg *ackConfig, sil *models.GettableSile
 		Silence: sil.Silence,
 	}
 
-	amclient := newAMClient(cfg.alertmanagerHostPort, cfg.alertmanagerAPIPath)
+	amclient := newAMClient(cfg.alertmanagerURI)
 
 	silenceParams := silence.NewPostSilencesParams().WithContext(ctx).WithSilence(ps)
 	postOk, err := amclient.Silence.PostSilences(silenceParams)

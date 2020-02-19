@@ -1,15 +1,45 @@
 package main
 
 import (
-	"github.com/prometheus/alertmanager/api/v2/client"
+	"net/http"
+	"net/url"
+	"path"
 
-	clientruntime "github.com/go-openapi/runtime/client"
-	"github.com/go-openapi/strfmt"
+	httptransport "github.com/go-openapi/runtime/client"
+
+	"github.com/prometheus/alertmanager/api/v2/client"
 )
 
-func newAMClient(hostPort string, apiPath string) *client.Alertmanager {
-	schemes := []string{"http"}
-	cr := clientruntime.New(hostPort, apiPath, schemes)
+func setAuth(inner http.RoundTripper, username string, password string) http.RoundTripper {
+	return &authRoundTripper{
+		inner:    inner,
+		Username: username,
+		Password: password,
+	}
+}
 
-	return client.New(cr, strfmt.Default)
+type authRoundTripper struct {
+	inner    http.RoundTripper
+	Username string
+	Password string
+}
+
+func (art *authRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) {
+	r.SetBasicAuth(art.Username, art.Password)
+	return art.inner.RoundTrip(r)
+}
+
+func newAMClient(uri string) *client.Alertmanager {
+	u, _ := url.Parse(uri)
+
+	transport := httptransport.New(u.Host, path.Join(u.Path, "/api/v2"), []string{u.Scheme})
+
+	if u.User.Username() != "" {
+		username := u.User.Username()
+		password, _ := u.User.Password()
+		transport.Transport = setAuth(transport.Transport, username, password)
+	}
+
+	c := client.New(transport, nil)
+	return c
 }
