@@ -22,7 +22,7 @@ func queryAlerts(ctx context.Context, cfg *ackConfig) ([]*models.GettableAlert, 
 		WithInhibited(&withInhibited).
 		WithSilenced(&withSilenced)
 
-	amclient := newAMClient(cfg.alertmanagerHostPort, cfg.alertmanagerAPIPath)
+	amclient := newAMClient(cfg.alertmanagerURI)
 
 	getOk, err := amclient.Alert.GetAlerts(alertParams)
 

@@ -39,21 +39,19 @@ var (
 )
 
 type ackConfig struct {
-	alertmanagerHostPort string
-	alertmanagerAPIPath  string
-	loopInterval         time.Duration
-	extendIfExpiringIn   time.Duration
-	extendBy             time.Duration
-	extendWithPrefix     string
-	maxDuration          time.Duration
+	alertmanagerURI    string
+	loopInterval       time.Duration
+	extendIfExpiringIn time.Duration
+	extendBy           time.Duration
+	extendWithPrefix   string
+	maxDuration        time.Duration
 }
 
 func main() {
 	addr := flag.String("listen", ":8080", "The address to listen on for HTTP requests.")
 
 	cfg := ackConfig{}
-	flag.StringVar(&cfg.alertmanagerHostPort, "alertmanager.addr", "localhost:9093", "The address of the alertmanager")
-	flag.StringVar(&cfg.alertmanagerAPIPath, "alertmanager.api", "/api/v2", "Base path for the alertmanager API")
+	flag.StringVar(&cfg.alertmanagerURI, "alertmanager.uri", "http://localhost:9093", "Alertmanager URI to use")
 	flag.DurationVar(&cfg.loopInterval, "interval", time.Duration(time.Second*45), "Silence check interval")
 	flag.DurationVar(&cfg.extendIfExpiringIn, "extend-if-expiring-in", time.Duration(time.Minute*5), "Extend silences that are about to expire in the next DURATION seconds")
 	flag.DurationVar(&cfg.extendBy, "extend-by", time.Duration(time.Minute*15), "Extend silences by adding DURATION seconds")
