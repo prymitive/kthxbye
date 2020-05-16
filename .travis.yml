@@ -1,6 +1,6 @@
 os: linux
 language: go
-go: "1.14.2"
+go: "1.14.3"
 go_import_path: github.com/prymitive/kthxbye
 env:
   - GO111MODULE=on
