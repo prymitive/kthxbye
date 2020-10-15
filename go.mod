@@ -7,5 +7,5 @@ require (
 	github.com/go-openapi/strfmt v0.19.6
 	github.com/golangci/golangci-lint v1.31.0
 	github.com/prometheus/alertmanager v0.21.0
-	github.com/prometheus/client_golang v1.7.1
+	github.com/prometheus/client_golang v1.8.0
 )
