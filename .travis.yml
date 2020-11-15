@@ -7,43 +7,6 @@ env:
 
 jobs:
   include:
-    - stage: Test
-      name: Build the binary
-      script:
-        - go build ./...
-
-    - stage: Test
-      name: Lint code
-      script:
-        - go install github.com/golangci/golangci-lint/cmd/golangci-lint
-        - golangci-lint run
-
-    - stage: Test
-      name: Verify go.sum
-      script:
-        - travis_retry go get -d -v ./...
-        - travis_retry go mod tidy
-        - git diff --exit-code
-
-    - stage: Test
-      name: Build docker image
-      if: (type = push AND branch = master) OR tag IS NOT present
-      language: shell
-      addons:
-        apt:
-          packages:
-            - docker-ce
-      script:
-        # Build
-        - export VERSION=$(git describe --tags --always --dirty='-dev')
-        - export DOCKER_USERNAME=lmierzwa
-        - export DOCKER_IMAGE=kthxbye
-        - export LOCAL_IMAGE="${DOCKER_IMAGE}:${VERSION}"
-        - travis_retry docker build -t "${LOCAL_IMAGE}" .
-        # Tag :latest
-        - export IMAGE_NAME="${DOCKER_USERNAME}/${DOCKER_IMAGE}"
-        - docker tag "${LOCAL_IMAGE}" "${IMAGE_NAME}:latest"
-
     - stage: Build and Deploy
       name: Cross compile binaries
       if: (repo = prymitive/kthxbye AND type != pull_request) OR (fork = true AND type = pull_request)
