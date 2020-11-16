@@ -23,10 +23,6 @@ jobs:
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag ${DOCKER_IMAGE}:latest
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
       - name: Extract git tag
         if: github.event_name == 'release'
         id: git_ref
