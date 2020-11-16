@@ -21,6 +21,11 @@ crosscompile: $(PLATFORMS)
 clean:
 	rm -f $(NAME) $(NAME)-*
 
+.PHONY: go-mod-tidy
+go-mod-tidy:
+	go mod tidy
+	cd tools/golangci-lint && go mod tidy
+
 .DEFAULT_GOAL := $(NAME)
 $(NAME): go.mod go.sum cmd/kthxbye/*.go
 	go build ./cmd/$(NAME)

@@ -3,10 +3,10 @@ name: Lint Go code
 on:
   push:
     branches:
-      - main
+      - master
   pull_request:
     branches:
-      - main
+      - master
 
 jobs:
   build:
@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Install GolangCI
-        run: go install github.com/golangci/golangci-lint/cmd/golangci-lint
+        run: go install -modfile=tools/golangci-lint/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
 
       - name: Lint Go code
         run: golangci-lint run
