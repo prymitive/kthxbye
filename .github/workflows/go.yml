@@ -1,4 +1,4 @@
-name: Build Go binary
+name: Go
 
 on:
   push:
@@ -12,42 +12,66 @@ on:
       - published
 
 jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.5
+
+      - name: Cache Go modules and build cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install GolangCI
+        run: go install -modfile=tools/golangci-lint/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
+
+      - name: Lint Go code
+        run: golangci-lint run
+
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: ^1.15
+          go-version: 1.15.5
 
-      - name: Cache Go modules
+      - name: Cache Go modules and build cache
         uses: actions/cache@v2
         with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-mod-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-mod-
-
-      - name: Cache Go build cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.cache/go-build
-          key: ${{ runner.os }}-go-cache-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-cache-
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: ${{ runner.os }}-go-
 
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Extract git tag
-        id: git_ref
-        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-
       - name: Crosscompile binaries
         run: make crosscompile -j 2
 
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Extract git tag
+        if: github.event_name == 'release'
+        id: git_ref
+        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+
       - name: Compress binaries
-        if: startsWith(github.ref, '/refs/tags/v.+')
+        if: github.event_name == 'release'
         run: |
           mkdir -p artifacts
           export SOURCE_DATE_EPOCH=$(git show -s --format=%ci ${{ steps.git_ref.outputs.TAG }}^${GITHUB_SHA})
@@ -55,7 +79,7 @@ jobs:
           shasum -a 512 kthxbye-*.tar.gz | tee artifacts/sha512sum.txt
 
       - name: Upload binaries to GitHub release
-        if: startsWith(github.ref, '/refs/tags/v.+')
+        if: github.event_name == 'release'
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
