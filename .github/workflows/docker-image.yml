@@ -17,3 +17,22 @@ jobs:
 
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag kthxbye:latest
+
+      - name: Extract git tag
+        id: git_ref
+        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
+
+      - name: Tag Docker image
+        if: startsWith(github.ref, '/refs/tags/v.+')
+        run: docker tag kthxbye:latest kthxbye:${{ steps.git_ref.outputs.TAG }}
+
+      - name: Login to Docker Hub
+        if: ${{ github.ref == 'refs/heads/master' }}
+        shell: bash
+        run: echo "${DOCKER_HUB_PASSWORD}" | docker login -u lmierzwa --password-stdin
+        env:
+          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Push Docker image
+        if: ${{ github.ref == 'refs/heads/master' }}
+        run: docker push kthxbye
