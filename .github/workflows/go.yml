@@ -61,10 +61,6 @@ jobs:
       - name: Crosscompile binaries
         run: make crosscompile -j 2
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
       - name: Extract git tag
         if: github.event_name == 'release'
         id: git_ref
