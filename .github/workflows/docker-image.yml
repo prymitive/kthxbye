@@ -11,12 +11,14 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      DOCKER_IMAGE: lmierzwa/kthxbye
     steps:
       - name: Check out code
         uses: actions/checkout@v2
 
       - name: Build Docker image
-        run: docker build . --file Dockerfile --tag kthxbye:latest
+        run: docker build . --file Dockerfile --tag ${DOCKER_IMAGE}:latest
 
       - name: Extract git tag
         id: git_ref
@@ -24,7 +26,7 @@ jobs:
 
       - name: Tag Docker image
         if: startsWith(github.ref, '/refs/tags/v.+')
-        run: docker tag kthxbye:latest kthxbye:${{ steps.git_ref.outputs.TAG }}
+        run: docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${{ steps.git_ref.outputs.TAG }}
 
       - name: Login to Docker Hub
         if: ${{ github.ref == 'refs/heads/master' }}
@@ -35,4 +37,4 @@ jobs:
 
       - name: Push Docker image
         if: ${{ github.ref == 'refs/heads/master' }}
-        run: docker push kthxbye
+        run: docker push ${DOCKER_IMAGE}
