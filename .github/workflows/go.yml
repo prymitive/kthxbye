@@ -70,7 +70,7 @@ jobs:
         if: github.event_name == 'release'
         run: |
           mkdir -p artifacts
-          export SOURCE_DATE_EPOCH=$(git show -s --format=%ci ${{ steps.git_ref.outputs.TAG }}^${GITHUB_SHA})
+          export SOURCE_DATE_EPOCH=$(git show -s --format=%ci ${GITHUB_SHA})
           for i in kthxbye-*; do tar --mtime="${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -c $i | gzip -n - > artifacts/$i.tar.gz; done
           shasum -a 512 kthxbye-*.tar.gz | tee artifacts/sha512sum.txt
 
