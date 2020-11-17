@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/prometheus/alertmanager/api/v2/client/silence"
 	"github.com/prometheus/alertmanager/api/v2/models"
+	"github.com/rs/zerolog/log"
 )
 
 func querySilences(ctx context.Context, cfg *ackConfig) ([]*models.GettableSilence, error) {
@@ -42,9 +42,13 @@ func updateSilence(ctx context.Context, cfg *ackConfig, sil *models.GettableSile
 	silenceParams := silence.NewPostSilencesParams().WithContext(ctx).WithSilence(ps)
 	postOk, err := amclient.Silence.PostSilences(silenceParams)
 	if err != nil {
-		log.Printf("Silence update failed: %s", err)
+		log.Error().Err(err).Msg("Silence update failed")
 	}
 
 	metricsSincesExtended.Inc()
-	log.Printf("Silence updated: %s => %s", *sil.ID, postOk.Payload.SilenceID)
+	log.Info().
+		Str("id", *sil.ID).
+		Str("replacedBy", postOk.Payload.SilenceID).
+		Strs("matchers", silenceMatchersToLogField(sil)).
+		Msg("Silence updated")
 }
