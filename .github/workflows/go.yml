@@ -12,35 +12,12 @@ on:
       - published
 
 jobs:
-  golangci-lint:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set up Go
-        uses: actions/setup-go@v2
-        with:
-          go-version: 1.15.5
-
-      - name: Cache Go modules and build cache
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/go/pkg/mod
-            ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
-
-      - name: Check out code
-        uses: actions/checkout@v2
-
-      - name: Install GolangCI
-        run: go install -modfile=tools/golangci-lint/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
-
-      - name: Lint Go code
-        run: golangci-lint run
-
   build:
     runs-on: ubuntu-latest
     steps:
+      - name: Set git slug envs
+        uses: rlespinasse/github-slug-action@3.1.0
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -52,8 +29,9 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: ${{ runner.os }}-go-
+          key: ${{ runner.os }}-${{ env.GITHUB_REF_SLUG }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-master-go-
 
       - name: Check out code
         uses: actions/checkout@v2
@@ -61,25 +39,23 @@ jobs:
       - name: Crosscompile binaries
         run: make crosscompile -j 2
 
-      - name: Extract git tag
-        if: github.event_name == 'release'
-        id: git_ref
-        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-
       - name: Compress binaries
-        if: github.event_name == 'release'
         run: |
           mkdir -p artifacts
           export SOURCE_DATE_EPOCH=$(git show -s --format=%ci ${GITHUB_SHA})
           for i in kthxbye-*; do tar --mtime="${SOURCE_DATE_EPOCH}" --owner=0 --group=0 --numeric-owner -c $i | gzip -n - > artifacts/$i.tar.gz; done
           shasum -a 512 kthxbye-*.tar.gz | tee artifacts/sha512sum.txt
 
+      - name: Get release
+        if: github.event_name == 'release'
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
       - name: Upload binaries to GitHub release
         if: github.event_name == 'release'
-        uses: svenstaro/upload-release-action@v2
+        uses: AButler/upload-release-assets@v2.0
         with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: artifacts/*
-          file_glob: true
-          tag: ${{ steps.git_ref.outputs.TAG }}
-          overwrite: true
+          files: "artifacts/*"
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
