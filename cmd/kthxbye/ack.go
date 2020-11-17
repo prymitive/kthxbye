@@ -2,11 +2,11 @@ package main
 
 import (
 	"context"
-	"log"
 	"strings"
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/rs/zerolog/log"
 )
 
 func extendACKs(cfg *ackConfig) error {
@@ -45,17 +45,27 @@ func extendACKs(cfg *ackConfig) error {
 			if time.Time(*sil.EndsAt).Before(extendIfBefore) {
 				duration := time.Time(*sil.EndsAt).Sub(time.Time(*sil.StartsAt))
 				if cfg.maxDuration > 0 && duration > cfg.maxDuration {
-					log.Printf("%s is used by %d alert(s) but it already reached the maximum duration (%s), letting it expire", *sil.ID, usedBy, duration)
+					log.Info().
+						Str("id", *sil.ID).
+						Strs("matchers", silenceMatchersToLogField(sil)).
+						Str("maxDuration", cfg.maxDuration.String()).
+						Msgf("Silence is used by %d alert(s) but it already reached the maximum duration, letting it expire", usedBy)
 				} else {
-					log.Printf("%s expires in %s and matches %d alert(s), extending it by %s",
-						*sil.ID, time.Time(*sil.EndsAt).Sub(time.Now().UTC()), usedBy, cfg.extendBy)
+					log.Info().
+						Str("id", *sil.ID).
+						Strs("matchers", silenceMatchersToLogField(sil)).
+						Msgf("Silence expires in %s and matches %d alert(s), extending it by %s",
+							time.Time(*sil.EndsAt).Sub(time.Now().UTC()), usedBy, cfg.extendBy)
 					endsAt := strfmt.DateTime(time.Now().UTC().Add(cfg.extendBy))
 					sil.EndsAt = &endsAt
 					updateSilence(ctx, cfg, sil)
 				}
 			}
 		} else {
-			log.Printf("%s is not used by any alert, letting it expire", *sil.ID)
+			log.Info().
+				Str("id", *sil.ID).
+				Strs("matchers", silenceMatchersToLogField(sil)).
+				Msg("Silence is not used by any alert, letting it expire")
 			silencesExpiring++
 		}
 	}
@@ -69,7 +79,7 @@ func ackLoop(cfg *ackConfig) {
 	for {
 		err := extendACKs(cfg)
 		if err != nil {
-			log.Printf("Failed to process silences: %s", err)
+			log.Error().Err(err).Msg("Failed to process silences")
 			metricsCycleFailrues.Inc()
 			metricsCycleStatus.Set(0)
 		} else {

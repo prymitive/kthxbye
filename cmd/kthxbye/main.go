@@ -2,13 +2,13 @@ package main
 
 import (
 	"flag"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promauto"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -45,6 +45,7 @@ type ackConfig struct {
 	extendBy           time.Duration
 	extendWithPrefix   string
 	maxDuration        time.Duration
+	logJSON            bool
 }
 
 func main() {
@@ -57,18 +58,25 @@ func main() {
 	flag.DurationVar(&cfg.extendBy, "extend-by", time.Duration(time.Minute*15), "Extend silences by adding DURATION seconds")
 	flag.StringVar(&cfg.extendWithPrefix, "extend-with-prefix", "ACK!", "Extend silences with comment starting with PREFIX string")
 	flag.DurationVar(&cfg.maxDuration, "max-duration", 0, "Maximum duration of a silence, it won't be extended anymore after reaching it")
+	flag.BoolVar(&cfg.logJSON, "log-json", false, "Format logged messages as JSON")
 
 	flag.Parse()
 
+	if !cfg.logJSON {
+		setupLogger()
+	}
+
 	if cfg.extendBy.Seconds() < cfg.extendIfExpiringIn.Seconds() {
-		log.Fatal("-extend-by value must be greater than -extend-if-expiring-in")
+		log.Fatal().Msg("-extend-by value must be greater than -extend-if-expiring-in")
 	}
 
 	go ackLoop(&cfg)
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/", index)
-	log.Fatal(http.ListenAndServe(*addr, nil))
+	if err := http.ListenAndServe(*addr, nil); err != nil {
+		log.Fatal().Err(err).Msg("Startup failed")
+	}
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +89,6 @@ func index(w http.ResponseWriter, r *http.Request) {
 			</html>
 			`))
 	if err != nil {
-		log.Println(err)
+		log.Error().Err(err).Msg("Failed to write a response")
 	}
 }
