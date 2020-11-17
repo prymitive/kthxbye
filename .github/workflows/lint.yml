@@ -1,0 +1,43 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+  release:
+    types:
+      - published
+
+jobs:
+  golangci-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set git slug envs
+        uses: rlespinasse/github-slug-action@3.1.0
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15.5
+
+      - name: Cache Go modules and build cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-${{ env.GITHUB_REF_SLUG }}-lint-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-master-lint-
+
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Install GolangCI
+        run: go install -modfile=tools/golangci-lint/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
+
+      - name: Lint Go code
+        run: golangci-lint run
