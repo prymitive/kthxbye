@@ -1,0 +1,41 @@
+name: Go version
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - Dockerfile
+
+jobs:
+  version-sync:
+    name: Synchronise go-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Get Go version from Dockerfile
+        run: |
+          echo "GO_VERSION=$(grep 'FROM golang:' Dockerfile | cut -d ':' -f2 | cut -d '-' -f1 | tr -d '\n')" >> $GITHUB_ENV
+
+      - name: Synchronise Go version in actions
+        run: |
+          sed -i -E s/'([\ \t]+)go-version: .+'/'\1go-version: ${{ env.GO_VERSION }}'/g .github/workflows/*
+          git diff
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3.5.0
+        with:
+          token: ${{ secrets.GH_REPO_TOKEN }}
+          author: "Łukasz Mierzwa <l.mierzwa@gmail.com>"
+          commit-message: "chore(actions): use latest Go version"
+          branch: version-sync-go
+          delete-branch: true
+          title: "chore(actions): use latest Go version"
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
