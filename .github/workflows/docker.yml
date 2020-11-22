@@ -23,14 +23,9 @@ jobs:
       - name: Build Docker image
         run: docker build . --file Dockerfile --tag ${DOCKER_IMAGE}:latest
 
-      - name: Extract git tag
-        if: github.event_name == 'release'
-        id: git_ref
-        run: echo ::set-output name=TAG::${GITHUB_REF#refs/tags/}
-
       - name: Tag Docker image
         if: github.event_name == 'release'
-        run: docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${{ steps.git_ref.outputs.TAG }}
+        run: docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${GITHUB_REF#refs/tags/}
 
       - name: Login to Docker Hub
         if: github.event_name == 'release'
