@@ -28,12 +28,12 @@ jobs:
         run: docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${GITHUB_REF#refs/tags/}
 
       - name: Login to Docker Hub
-        if: github.event_name == 'release'
+        if: github.event_name != 'pull_request'
         shell: bash
         run: echo "${DOCKER_HUB_PASSWORD}" | docker login -u lmierzwa --password-stdin
         env:
           DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
 
       - name: Push Docker image
-        if: github.event_name == 'release'
+        if: github.event_name != 'pull_request'
         run: docker push ${DOCKER_IMAGE}
