@@ -6,7 +6,7 @@ The goal of this project is to provide a simple way of acknowledging alerts,
 which is currently not possible with Alertmanager itself
 [see this issue](https://github.com/prometheus/alertmanager/issues/1860).
 
-# Current acknowledgment workflow with Alertmanager
+## Current acknowledgment workflow with Alertmanager
 
 Currently when a new alert fires in Alertmanager there are 2 options:
 
@@ -29,7 +29,7 @@ There are tools to better manage alert ownership like PagerDuty or Opsgenie,
 which can help to avoid this problem, but they require sending all alerts
 to external escalation system.
 
-# How it works
+## How it works
 
 kthxbye will continuously extend silences that are about to expire but are
 matching firing alerts. Silences will be allowed to expire only if they don't
@@ -52,28 +52,35 @@ This allows to silence an alert without worrying about picking correct duration
 for the silence, so you effectively silence a specific indecent rather than
 the alert.
 
-# Building binaries
+## Building binaries
 
 Have the most recent Go version and compile it using the usual `go build`
 command:
 
-```
-$ go build ./...
+```shell
+go build ./...
 ```
 
-# Usage
+## Docker images
+
+Images are built automatically for:
+
+- release tags in git - ghcr.io/prymitive/kthxbye:vX.Y.Z
+- master branch commits - ghcr.io/prymitive/kthxbye:latest
+
+## Usage
 
 Start kthxbye and pass the address of Alertmanager you want it to manage.
 
 ```shell
-$ kthxbye -alertmanager.uri http://alertmanager.example.com:9093
+kthxbye -alertmanager.uri http://alertmanager.example.com:9093
 ```
 
 By default kthxbye will only extend silences with comment starting with `ACK!`,
 you can set a custom prefix with:
 
 ```shell
-$ kthxbye -extend-with-prefix "MY CUSTOM PREFIX"
+kthxbye -extend-with-prefix "MY CUSTOM PREFIX"
 ```
 
 Be sure to set `-extend-if-expiring-in` and `-extend-by` flags that match your
