@@ -14,26 +14,60 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    env:
-      DOCKER_IMAGE: lmierzwa/kthxbye
     steps:
       - name: Check out code
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
-      - name: Build Docker image
-        run: docker build . --file Dockerfile --tag ${DOCKER_IMAGE}:latest
+      - name: Set git slug envs
+        uses: rlespinasse/github-slug-action@3.1.0
 
-      - name: Tag Docker image
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v1
+        with:
+          username: lmierzwa
+          password: ${{ secrets.DOCKER_HUB_PASSWORD }}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GH_PKG_TOKEN }}
+
+      - name: "Setup docker tags (latest + vX.Y)"
         if: github.event_name == 'release'
-        run: docker tag ${DOCKER_IMAGE}:latest ${DOCKER_IMAGE}:${GITHUB_REF#refs/tags/}
+        run: |
+          echo 'DOCKER_TAGS<<EOF' >> $GITHUB_ENV
+          echo 'lmierzwa/kthxbye:${{ env.GITHUB_REF_SLUG }}' >> $GITHUB_ENV
+          echo 'lmierzwa/kthxbye:latest' >> $GITHUB_ENV
+          echo 'ghcr.io/prymitive/kthxbye:${{ env.GITHUB_REF_SLUG }}' >> $GITHUB_ENV
+          echo 'ghcr.io/prymitive/kthxbye:latest' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
-      - name: Login to Docker Hub
-        if: github.event_name != 'pull_request'
-        shell: bash
-        run: echo "${DOCKER_HUB_PASSWORD}" | docker login -u lmierzwa --password-stdin
-        env:
-          DOCKER_HUB_PASSWORD: ${{ secrets.DOCKER_HUB_PASSWORD }}
+      - name: "Setup docker tags (latest)"
+        if: github.event_name != 'release'
+        run: |
+          echo 'DOCKER_TAGS<<EOF' >> $GITHUB_ENV
+          echo 'lmierzwa/kthxbye:latest' >> $GITHUB_ENV
+          echo 'ghcr.io/prymitive/kthxbye:latest' >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
 
-      - name: Push Docker image
-        if: github.event_name != 'pull_request'
-        run: docker push ${DOCKER_IMAGE}
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ env.DOCKER_TAGS }}
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache
