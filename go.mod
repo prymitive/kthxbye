@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/go-openapi/runtime v0.19.24
-	github.com/go-openapi/strfmt v0.19.11
+	github.com/go-openapi/strfmt v0.20.0
 	github.com/go-openapi/validate v0.20.0 // indirect
 	github.com/prometheus/alertmanager v0.21.0
 	github.com/prometheus/client_golang v1.9.0
