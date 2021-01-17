@@ -3,10 +3,10 @@ name: Go
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
   release:
     types:
       - published
@@ -31,7 +31,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ runner.os }}-${{ env.GITHUB_REF_SLUG }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-master-go-
+            ${{ runner.os }}-main-go-
 
       - name: Check out code
         uses: actions/checkout@v2

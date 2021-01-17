@@ -3,10 +3,10 @@ name: Lint
 on:
   push:
     branches:
-      - master
+      - main
   pull_request:
     branches:
-      - master
+      - main
 
 jobs:
   golangci-lint:
@@ -28,7 +28,7 @@ jobs:
             ~/.cache/go-build
           key: ${{ runner.os }}-${{ env.GITHUB_REF_SLUG }}-lint-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-master-lint-
+            ${{ runner.os }}-main-lint-
 
       - name: Check out code
         uses: actions/checkout@v2

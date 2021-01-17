@@ -66,7 +66,7 @@ go build ./...
 Images are built automatically for:
 
 - release tags in git - ghcr.io/prymitive/kthxbye:vX.Y.Z
-- master branch commits - ghcr.io/prymitive/kthxbye:latest
+- main branch commits - ghcr.io/prymitive/kthxbye:latest
 
 ## Usage
 
