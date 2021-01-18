@@ -3,7 +3,7 @@ module github.com/prymitive/kthxbye
 go 1.15
 
 require (
-	github.com/go-openapi/runtime v0.19.24
+	github.com/go-openapi/runtime v0.19.25
 	github.com/go-openapi/spec v0.20.1 // indirect
 	github.com/go-openapi/strfmt v0.20.0
 	github.com/go-openapi/swag v0.19.13 // indirect
