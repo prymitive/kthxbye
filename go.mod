@@ -11,11 +11,12 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/prometheus/alertmanager v0.21.0
 	github.com/prometheus/client_golang v1.9.0
-	github.com/prometheus/common v0.18.0 // indirect
+	github.com/prometheus/common v0.19.0 // indirect
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/rs/zerolog v1.20.0
+	go.mongodb.org/mongo-driver v1.5.0 // indirect
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
-	golang.org/x/sys v0.0.0-20210305230114-8fe3ee5dd75b // indirect
+	golang.org/x/sys v0.0.0-20210313202042-bd2e13477e9c // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/protobuf v1.25.0 // indirect
 )
