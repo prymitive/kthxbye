@@ -10,9 +10,8 @@ require (
 	github.com/go-openapi/validate v0.20.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/prometheus/alertmanager v0.21.0
-	github.com/prometheus/client_golang v1.9.0
+	github.com/prometheus/client_golang v1.10.0
 	github.com/prometheus/common v0.19.0 // indirect
-	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/rs/zerolog v1.20.0
 	go.mongodb.org/mongo-driver v1.5.0 // indirect
 	golang.org/x/net v0.0.0-20210226172049-e18ecbb05110 // indirect
