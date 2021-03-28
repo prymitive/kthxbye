@@ -24,3 +24,7 @@ clean:
 .DEFAULT_GOAL := $(NAME)
 $(NAME): go.mod go.sum cmd/kthxbye/*.go
 	go build ./cmd/$(NAME)
+
+.PHONY: tools-go-mod-tidy
+tools-go-mod-tidy:
+	@for f in $(wildcard tools/*/go.mod) ; do echo ">>> $$f" && cd $(CURDIR)/`dirname "$$f"` && go mod tidy && cd $(CURDIR) ; done
