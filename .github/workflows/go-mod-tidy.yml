@@ -12,7 +12,7 @@ on:
 
 jobs:
   version-sync:
-    name: Synchronise go-version
+    name: Run go mod tidy
     runs-on: ubuntu-20.04
     steps:
       - name: Check out code
