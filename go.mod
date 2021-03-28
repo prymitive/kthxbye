@@ -12,9 +12,9 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/prometheus/alertmanager v0.21.0
 	github.com/prometheus/client_golang v1.10.0
-	github.com/prometheus/common v0.19.0 // indirect
+	github.com/prometheus/common v0.20.0 // indirect
 	github.com/rs/zerolog v1.21.0
 	go.mongodb.org/mongo-driver v1.5.0 // indirect
-	golang.org/x/net v0.0.0-20210316092652-d523dce5a7f4 // indirect
-	golang.org/x/sys v0.0.0-20210320140829-1e4c9ba3b0c4 // indirect
+	golang.org/x/net v0.0.0-20210326220855-61e056675ecf // indirect
+	golang.org/x/sys v0.0.0-20210326220804-49726bf1d181 // indirect
 )
