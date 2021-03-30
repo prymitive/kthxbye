@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Set git slug envs
-        uses: rlespinasse/github-slug-action@3.3.0
+        uses: rlespinasse/github-slug-action@3.5.0
 
       - name: Set up Go
         uses: actions/setup-go@v2
