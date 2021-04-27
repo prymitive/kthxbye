@@ -2,7 +2,7 @@ name: Containers
 
 on:
   schedule:
-    - cron: "0 * * * *"
+    - cron: "15 * * * *"
 
 jobs:
   go-mod-upgrades:
@@ -15,4 +15,4 @@ jobs:
       - name: Purge containers
         run: ./scripts/purge-untagged-containers.py
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_PKG_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PURGE_CONTAINERS }}
