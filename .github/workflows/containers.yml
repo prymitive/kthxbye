@@ -2,7 +2,7 @@ name: Maintenance
 
 on:
   schedule:
-    - cron: "15 10 * * *"
+    - cron: "20 * * * *"
 
 jobs:
   go-mod-upgrades:
