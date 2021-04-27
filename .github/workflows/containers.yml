@@ -1,15 +1,18 @@
-name: Maintenance
+name: Containers
 
 on:
   schedule:
-    - cron: "20 * * * *"
+    - cron: "0 * * * *"
 
 jobs:
   go-mod-upgrades:
     name: Purge untagged containers
     runs-on: ubuntu-latest
     steps:
-      - name: Upgrade all Go modules
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Purge containers
         run: ./scripts/purge-untagged-containers.py
         env:
           GITHUB_TOKEN: ${{ secrets.GH_PKG_TOKEN }}
