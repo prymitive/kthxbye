@@ -14,8 +14,8 @@ require (
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/prometheus/alertmanager v0.21.0
 	github.com/prometheus/client_golang v1.10.0
-	github.com/prometheus/common v0.21.0 // indirect
+	github.com/prometheus/common v0.23.0 // indirect
 	github.com/rs/zerolog v1.21.0
-	golang.org/x/net v0.0.0-20210423184538-5f58ad60dda6 // indirect
-	golang.org/x/sys v0.0.0-20210423185535-09eb48e85fd7 // indirect
+	golang.org/x/net v0.0.0-20210502030024-e5908800b52b // indirect
+	golang.org/x/sys v0.0.0-20210426230700-d19ff857e887 // indirect
 )
