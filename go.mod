@@ -9,7 +9,7 @@ require (
 	github.com/go-openapi/strfmt v0.20.1
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/prometheus/alertmanager v0.22.1
+	github.com/prometheus/alertmanager v0.22.2
 	github.com/prometheus/client_golang v1.10.0
 	github.com/prometheus/common v0.25.0 // indirect
 	github.com/rs/zerolog v1.22.0
