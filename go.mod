@@ -15,6 +15,6 @@ require (
 	github.com/prometheus/common v0.29.0 // indirect
 	github.com/rs/zerolog v1.23.0
 	go.mongodb.org/mongo-driver v1.5.3 // indirect
-	golang.org/x/net v0.0.0-20210610132358-84b48f89b13b // indirect
-	golang.org/x/sys v0.0.0-20210611083646-a4fc73990273 // indirect
+	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
+	golang.org/x/sys v0.0.0-20210616094352-59db8d763f22 // indirect
 )
