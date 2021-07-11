@@ -13,6 +13,7 @@ require (
 	github.com/prometheus/alertmanager v0.22.2
 	github.com/prometheus/client_golang v1.11.0
 	github.com/prometheus/common v0.29.0 // indirect
+	github.com/prometheus/procfs v0.7.0 // indirect
 	github.com/rs/zerolog v1.23.0
 	go.mongodb.org/mongo-driver v1.5.4 // indirect
 	golang.org/x/net v0.0.0-20210614182718-04defd469f4e // indirect
