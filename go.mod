@@ -16,8 +16,8 @@ require (
 	github.com/prometheus/procfs v0.7.3 // indirect
 	github.com/rs/zerolog v1.25.0
 	go.mongodb.org/mongo-driver v1.7.3 // indirect
-	golang.org/x/net v0.0.0-20211015210444-4f30a5c0130f // indirect
-	golang.org/x/sys v0.0.0-20211015200801-69063c4bb744 // indirect
+	golang.org/x/net v0.0.0-20211020060615-d418f374d309 // indirect
+	golang.org/x/sys v0.0.0-20211023085530-d6a326fbbf70 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 )
@@ -39,6 +39,6 @@ require (
 	github.com/oklog/ulid v1.3.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0 // indirect
 	github.com/prometheus/client_model v0.2.0 // indirect
-	github.com/prometheus/common v0.31.1 // indirect
+	github.com/prometheus/common v0.32.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
