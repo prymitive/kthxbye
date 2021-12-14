@@ -1,13 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"net/url"
-	"path"
-
-	httptransport "github.com/go-openapi/runtime/client"
-
-	"github.com/prometheus/alertmanager/api/v2/client"
+	"strings"
 )
 
 func setAuth(inner http.RoundTripper, username string, password string) http.RoundTripper {
@@ -29,17 +26,22 @@ func (art *authRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 	return art.inner.RoundTrip(r)
 }
 
-func newAMClient(uri string) *client.Alertmanager {
+func newAMClient(uri string) http.Client {
+	client := http.Client{}
+
 	u, _ := url.Parse(uri)
-
-	transport := httptransport.New(u.Host, path.Join(u.Path, "/api/v2"), []string{u.Scheme})
-
 	if u.User.Username() != "" {
 		username := u.User.Username()
 		password, _ := u.User.Password()
-		transport.Transport = setAuth(transport.Transport, username, password)
+		client.Transport = setAuth(client.Transport, username, password)
 	}
 
-	c := client.New(transport, nil)
-	return c
+	return client
+}
+
+func joinURI(base, path string) string {
+	if strings.HasSuffix(base, "/") {
+		return fmt.Sprintf("%s%s", base, path)
+	}
+	return fmt.Sprintf("%s/%s", base, path)
 }
