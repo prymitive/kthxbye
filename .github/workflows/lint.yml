@@ -33,8 +33,5 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Install GolangCI
-        run: go install -modfile=tools/golangci-lint/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
-
       - name: Lint Go code
-        run: golangci-lint run
+        run: make lint

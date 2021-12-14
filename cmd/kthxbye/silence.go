@@ -1,54 +1,121 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"time"
 
-	"github.com/prometheus/alertmanager/api/v2/client/silence"
-	"github.com/prometheus/alertmanager/api/v2/models"
 	"github.com/rs/zerolog/log"
 )
 
-func querySilences(ctx context.Context, cfg *ackConfig) ([]*models.GettableSilence, error) {
-	silences := []*models.GettableSilence{}
+type Silence struct {
+	ID     string `json:"id,omitempty"`
+	Status struct {
+		State string `json:"state"`
+	} `json:"status"`
+	Matchers []struct {
+		IsEqual bool   `json:"isEqual"`
+		IsRegex bool   `json:"isRegex"`
+		Name    string `json:"name"`
+		Value   string `json:"value"`
+	} `json:"matchers"`
+	CreatedBy string    `json:"createdBy"`
+	Comment   string    `json:"comment"`
+	StartsAt  time.Time `json:"startsAt"`
+	EndsAt    time.Time `json:"endsAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
 
-	silenceParams := silence.NewGetSilencesParams().WithContext(ctx)
+type SilenceResponse struct {
+	SilenceID string `json:"silenceID"`
+}
 
-	amclient := newAMClient(cfg.alertmanagerURI)
+func querySilences(cfg ackConfig) (silences []Silence, err error) {
+	uri := joinURI(cfg.alertmanagerURI, "api/v2/silences")
 
-	getOk, err := amclient.Silence.GetSilences(silenceParams)
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.alertmanagerTimeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
-		return silences, err
+		return nil, err
 	}
 
-	for _, sil := range getOk.Payload {
-		if time.Time(*sil.EndsAt).Before(time.Now()) {
-			continue
+	client := newAMClient(cfg.alertmanagerURI)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	dec := json.NewDecoder(resp.Body)
+
+	tok, err := dec.Token()
+	if err != nil {
+		return nil, err
+	}
+
+	if tok != json.Delim('[') {
+		return nil, fmt.Errorf("invalid JSON token, expected [, got %s", tok)
+	}
+
+	var silence Silence
+	for dec.More() {
+		if err = dec.Decode(&silence); err != nil {
+			return nil, err
 		}
-		silences = append(silences, sil)
+		if silence.Status.State == "active" {
+			silences = append(silences, silence)
+		}
 	}
 
 	return silences, nil
 }
 
-func updateSilence(ctx context.Context, cfg *ackConfig, sil *models.GettableSilence) {
-	ps := &models.PostableSilence{
-		ID:      *sil.ID,
-		Silence: sil.Silence,
+func updateSilence(cfg ackConfig, sil Silence) error {
+	payload, err := json.Marshal(sil)
+	if err != nil {
+		return err
 	}
 
-	amclient := newAMClient(cfg.alertmanagerURI)
+	uri := joinURI(cfg.alertmanagerURI, "api/v2/silences")
 
-	silenceParams := silence.NewPostSilencesParams().WithContext(ctx).WithSilence(ps)
-	postOk, err := amclient.Silence.PostSilences(silenceParams)
+	client := newAMClient(cfg.alertmanagerURI)
+
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.alertmanagerTimeout)
+	defer cancel()
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, uri, bytes.NewReader(payload))
 	if err != nil {
-		log.Error().Err(err).Msg("Silence update failed")
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("wrong response status received: %s", resp.Status)
+	}
+
+	var sr SilenceResponse
+	err = json.NewDecoder(resp.Body).Decode(&sr)
+	if err != nil {
+		return err
 	}
 
 	metricsSincesExtended.Inc()
 	log.Info().
-		Str("id", *sil.ID).
-		Str("replacedBy", postOk.Payload.SilenceID).
+		Str("id", sil.ID).
+		Str("replacedBy", sr.SilenceID).
 		Strs("matchers", silenceMatchersToLogField(sil)).
 		Msg("Silence updated")
+	return nil
 }

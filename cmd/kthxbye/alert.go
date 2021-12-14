@@ -2,36 +2,62 @@ package main
 
 import (
 	"context"
-
-	"github.com/prometheus/alertmanager/api/v2/client/alert"
-	"github.com/prometheus/alertmanager/api/v2/models"
+	"encoding/json"
+	"fmt"
+	"net/http"
 )
 
-func queryAlerts(ctx context.Context, cfg *ackConfig) ([]*models.GettableAlert, error) {
+type Alert struct {
+	Status struct {
+		SilencedBy []interface{} `json:"silencedBy"`
+	} `json:"status"`
+}
 
-	alerts := []*models.GettableAlert{}
+func queryAlerts(cfg ackConfig) (alerts []Alert, err error) {
+	uri := fmt.Sprintf(
+		"%s?silenced=true&inhibited=false&active=false&unprocessed=false",
+		joinURI(cfg.alertmanagerURI, "api/v2/alerts"))
 
-	withUnprocessed := false
-	withActive := false
-	withInhibited := false
-	withSilenced := true
+	ctx, cancel := context.WithTimeout(context.Background(), cfg.alertmanagerTimeout)
+	defer cancel()
 
-	alertParams := alert.NewGetAlertsParams().WithContext(ctx).
-		WithUnprocessed(&withUnprocessed).
-		WithActive(&withActive).
-		WithInhibited(&withInhibited).
-		WithSilenced(&withSilenced)
-
-	amclient := newAMClient(cfg.alertmanagerURI)
-
-	getOk, err := amclient.Alert.GetAlerts(alertParams)
-
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, uri, nil)
 	if err != nil {
-		return alerts, err
+		return nil, err
 	}
 
-	for _, alert := range getOk.Payload {
+	client := newAMClient(cfg.alertmanagerURI)
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	dec := json.NewDecoder(resp.Body)
+
+	tok, err := dec.Token()
+	if err != nil {
+		return nil, err
+	}
+	if tok != json.Delim('[') {
+		return nil, fmt.Errorf("invalid JSON token, expected [, got %s", tok)
+	}
+
+	var alert Alert
+	for dec.More() {
+		if err = dec.Decode(&alert); err != nil {
+			return nil, err
+		}
 		alerts = append(alerts, alert)
+	}
+
+	tok, err = dec.Token()
+	if err != nil {
+		return nil, err
+	}
+	if tok != json.Delim(']') {
+		return nil, fmt.Errorf("invalid JSON token, expected ], got %s", tok)
 	}
 
 	return alerts, nil

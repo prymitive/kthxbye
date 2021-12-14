@@ -1,5 +1,10 @@
 NAME := kthxbye
 
+GOBIN := $(shell go env GOBIN)
+ifeq ($(GOBIN),)
+GOBIN = $(shell go env GOPATH)/bin
+endif
+
 word-split = $(word $2,$(subst -, ,$1))
 cc-%: go.mod go.sum cmd/kthxbye/*.go
 	$(eval GOOS := $(call word-split,$*,1))
@@ -28,3 +33,9 @@ $(NAME): go.mod go.sum cmd/kthxbye/*.go
 .PHONY: tools-go-mod-tidy
 tools-go-mod-tidy:
 	@for f in $(wildcard tools/*/go.mod) ; do echo ">>> $$f" && cd $(CURDIR)/`dirname "$$f"` && go mod tidy && cd $(CURDIR) ; done
+
+$(GOBIN)/golangci-lint: tools/golangci-lint/go.mod tools/golangci-lint/go.sum
+	go install -modfile=tools/golangci-lint/go.mod github.com/golangci/golangci-lint/cmd/golangci-lint
+.PHONY: lint
+lint: $(GOBIN)/golangci-lint
+	$(ENV) golangci-lint run -v --timeout 5m -E staticcheck,misspell,promlinter,revive,tenv,errorlint,exportloopref,predeclared

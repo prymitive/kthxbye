@@ -1,24 +1,19 @@
 package main
 
 import (
-	"context"
 	"strings"
 	"time"
 
-	"github.com/go-openapi/strfmt"
 	"github.com/rs/zerolog/log"
 )
 
-func extendACKs(cfg *ackConfig) error {
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	silences, err := querySilences(ctx, cfg)
+func extendACKs(cfg ackConfig) error {
+	silences, err := querySilences(cfg)
 	if err != nil {
 		return err
 	}
 
-	alerts, err := queryAlerts(ctx, cfg)
+	alerts, err := queryAlerts(cfg)
 	if err != nil {
 		return err
 	}
@@ -29,41 +24,43 @@ func extendACKs(cfg *ackConfig) error {
 
 	silencesExpiring := 0
 	for _, sil := range silences {
-		if !strings.HasPrefix(*sil.Comment, cfg.extendWithPrefix) {
+		if !strings.HasPrefix(sil.Comment, cfg.extendWithPrefix) {
 			continue
 		}
 
 		usedBy := 0
 		for _, alert := range alerts {
 			for _, silenceID := range alert.Status.SilencedBy {
-				if silenceID == *sil.ID {
+				if silenceID == sil.ID {
 					usedBy++
 				}
 			}
 		}
 		if usedBy > 0 {
-			if time.Time(*sil.EndsAt).Before(extendIfBefore) {
-				duration := time.Time(*sil.EndsAt).Sub(time.Time(*sil.StartsAt))
+			if sil.EndsAt.Before(extendIfBefore) {
+				duration := time.Time(sil.EndsAt).Sub(time.Time(sil.StartsAt))
 				if cfg.maxDuration > 0 && duration > cfg.maxDuration {
 					log.Info().
-						Str("id", *sil.ID).
+						Str("id", sil.ID).
 						Strs("matchers", silenceMatchersToLogField(sil)).
 						Str("maxDuration", cfg.maxDuration.String()).
 						Msgf("Silence is used by %d alert(s) but it already reached the maximum duration, letting it expire", usedBy)
 				} else {
 					log.Info().
-						Str("id", *sil.ID).
+						Str("id", sil.ID).
 						Strs("matchers", silenceMatchersToLogField(sil)).
 						Msgf("Silence expires in %s and matches %d alert(s), extending it by %s",
-							time.Time(*sil.EndsAt).Sub(time.Now().UTC()), usedBy, cfg.extendBy)
-					endsAt := strfmt.DateTime(time.Now().UTC().Add(cfg.extendBy))
-					sil.EndsAt = &endsAt
-					updateSilence(ctx, cfg, sil)
+							sil.EndsAt.Sub(time.Now().UTC()), usedBy, cfg.extendBy)
+					sil.EndsAt = time.Now().UTC().Add(cfg.extendBy)
+					err = updateSilence(cfg, sil)
+					if err != nil {
+						log.Error().Err(err).Msg("Silence update failed")
+					}
 				}
 			}
 		} else {
 			log.Info().
-				Str("id", *sil.ID).
+				Str("id", sil.ID).
 				Strs("matchers", silenceMatchersToLogField(sil)).
 				Msg("Silence is not used by any alert, letting it expire")
 			silencesExpiring++
@@ -74,7 +71,7 @@ func extendACKs(cfg *ackConfig) error {
 	return nil
 }
 
-func ackLoop(cfg *ackConfig) {
+func ackLoop(cfg ackConfig) {
 	metricsCycleStatus.Set(1)
 	for {
 		err := extendACKs(cfg)

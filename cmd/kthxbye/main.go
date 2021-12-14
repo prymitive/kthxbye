@@ -39,13 +39,14 @@ var (
 )
 
 type ackConfig struct {
-	alertmanagerURI    string
-	loopInterval       time.Duration
-	extendIfExpiringIn time.Duration
-	extendBy           time.Duration
-	extendWithPrefix   string
-	maxDuration        time.Duration
-	logJSON            bool
+	alertmanagerURI     string
+	alertmanagerTimeout time.Duration
+	loopInterval        time.Duration
+	extendIfExpiringIn  time.Duration
+	extendBy            time.Duration
+	extendWithPrefix    string
+	maxDuration         time.Duration
+	logJSON             bool
 }
 
 func main() {
@@ -53,6 +54,7 @@ func main() {
 
 	cfg := ackConfig{}
 	flag.StringVar(&cfg.alertmanagerURI, "alertmanager.uri", "http://localhost:9093", "Alertmanager URI to use")
+	flag.DurationVar(&cfg.alertmanagerTimeout, "alertmanager.timeout", time.Minute, "Alertmanager request timeout")
 	flag.DurationVar(&cfg.loopInterval, "interval", time.Duration(time.Second*45), "Silence check interval")
 	flag.DurationVar(&cfg.extendIfExpiringIn, "extend-if-expiring-in", time.Duration(time.Minute*5), "Extend silences that are about to expire in the next DURATION seconds")
 	flag.DurationVar(&cfg.extendBy, "extend-by", time.Duration(time.Minute*15), "Extend silences by adding DURATION seconds")
@@ -66,11 +68,11 @@ func main() {
 		setupLogger()
 	}
 
-	if cfg.extendBy.Seconds() < cfg.extendIfExpiringIn.Seconds() {
+	if cfg.extendBy.Seconds() <= cfg.extendIfExpiringIn.Seconds() {
 		log.Fatal().Msg("-extend-by value must be greater than -extend-if-expiring-in")
 	}
 
-	go ackLoop(&cfg)
+	go ackLoop(cfg)
 
 	http.Handle("/metrics", promhttp.Handler())
 	http.HandleFunc("/", index)

@@ -4,5 +4,6 @@
     "enabled": true
   },
   "postUpdateOptions": ["gomodTidy"],
-  "automerge": true
+  "automerge": true,
+  "platformAutomerge": true
 }

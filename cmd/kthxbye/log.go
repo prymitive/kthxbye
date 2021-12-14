@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/prometheus/alertmanager/api/v2/models"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 )
@@ -28,13 +27,13 @@ func setupLogger() {
 	})
 }
 
-func silenceMatchersToLogField(s *models.GettableSilence) (matchers []string) {
+func silenceMatchersToLogField(s Silence) (matchers []string) {
 	for _, sm := range s.Matchers {
 		op := "="
-		if *sm.IsRegex {
+		if sm.IsRegex {
 			op = "=~"
 		}
-		matchers = append(matchers, fmt.Sprintf("%s%s%s", *sm.Name, op, *sm.Value))
+		matchers = append(matchers, fmt.Sprintf("%s%s%s", sm.Name, op, sm.Value))
 	}
 	return matchers
 }
