@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 	"time"
 
@@ -72,6 +73,16 @@ func querySilences(cfg ackConfig) (silences []Silence, err error) {
 			silences = append(silences, silence)
 		}
 	}
+
+	tok, err = dec.Token()
+	if err != nil {
+		return nil, err
+	}
+	if tok != json.Delim(']') {
+		return nil, fmt.Errorf("invalid JSON token, expected ], got %s", tok)
+	}
+
+	_, _ = io.Copy(io.Discard, resp.Body)
 
 	return silences, nil
 }
