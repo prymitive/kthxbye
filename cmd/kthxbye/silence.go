@@ -66,6 +66,7 @@ func querySilences(cfg ackConfig) (silences []Silence, err error) {
 
 	var silence Silence
 	for dec.More() {
+		silence.Matchers = nil
 		if err = dec.Decode(&silence); err != nil {
 			return nil, err
 		}
