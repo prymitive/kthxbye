@@ -9,7 +9,7 @@ import (
 
 type Alert struct {
 	Status struct {
-		SilencedBy []interface{} `json:"silencedBy"`
+		SilencedBy []string `json:"silencedBy"`
 	} `json:"status"`
 }
 
@@ -46,6 +46,7 @@ func queryAlerts(cfg ackConfig) (alerts []Alert, err error) {
 
 	var alert Alert
 	for dec.More() {
+		alert.Status.SilencedBy = []string{}
 		if err = dec.Decode(&alert); err != nil {
 			return nil, err
 		}
