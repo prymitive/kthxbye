@@ -34,7 +34,7 @@ jobs:
             ${{ runner.os }}-main-go-
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Crosscompile binaries
         run: make crosscompile -j 2

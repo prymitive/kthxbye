@@ -31,7 +31,7 @@ jobs:
             ${{ runner.os }}-main-lint-
 
       - name: Check out code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Lint Go code
         run: make lint
