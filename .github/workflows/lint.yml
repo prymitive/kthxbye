@@ -12,9 +12,6 @@ jobs:
   golangci-lint:
     runs-on: ubuntu-latest
     steps:
-      - name: Set git slug envs
-        uses: rlespinasse/github-slug-action@4.1.0
-
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
@@ -26,9 +23,9 @@ jobs:
           path: |
             ~/go/pkg/mod
             ~/.cache/go-build
-          key: ${{ runner.os }}-${{ env.GITHUB_REF_SLUG }}-lint-${{ hashFiles('**/go.sum') }}
+          key: ${{ runner.os }}-lint-${{ hashFiles('**/go.sum') }}
           restore-keys: |
-            ${{ runner.os }}-main-lint-
+            ${{ runner.os }}-lint-
 
       - name: Check out code
         uses: actions/checkout@v3
