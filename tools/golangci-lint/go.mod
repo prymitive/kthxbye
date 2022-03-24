@@ -2,7 +2,7 @@ module _
 
 go 1.17
 
-require github.com/golangci/golangci-lint v1.45.1
+require github.com/golangci/golangci-lint v1.45.2
 
 require (
 	4d63.com/gochecknoglobals v0.1.0 // indirect
