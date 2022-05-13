@@ -3,7 +3,7 @@ module github.com/prymitive/kthxbye
 go 1.17
 
 require (
-	github.com/prometheus/client_golang v1.12.1
+	github.com/prometheus/client_golang v1.12.2
 	github.com/rs/zerolog v1.26.1
 )
 
