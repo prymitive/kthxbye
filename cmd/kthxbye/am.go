@@ -27,10 +27,10 @@ func (art *authRoundTripper) RoundTrip(r *http.Request) (*http.Response, error) 
 }
 
 func newAMClient(uri string) http.Client {
-	client := http.Client{}
+	client := http.Client{Transport: http.DefaultTransport}
 
 	u, _ := url.Parse(uri)
-	if u.User.Username() != "" {
+	if u.User != nil && u.User.Username() != "" {
 		username := u.User.Username()
 		password, _ := u.User.Password()
 		client.Transport = setAuth(client.Transport, username, password)
