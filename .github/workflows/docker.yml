@@ -21,7 +21,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set git slug envs
-        uses: rlespinasse/github-slug-action@v4.4.0
+        uses: rlespinasse/github-slug-action@v4.4.1
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v2
