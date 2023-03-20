@@ -81,7 +81,7 @@ func main() {
 	}
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func index(w http.ResponseWriter, _ *http.Request) {
 	_, err := w.Write([]byte(`
 			<html>
 			<head><title>kthxbye</title></head>
