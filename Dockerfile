@@ -6,7 +6,7 @@ COPY cmd /src/cmd
 WORKDIR /src
 RUN CGO_ENABLED=0 go build ./...
 
-FROM gcr.io/distroless/base
+FROM gcr.io/distroless/static
 LABEL org.opencontainers.image.source https://github.com/prymitive/kthxbye
 COPY --from=go-builder /src/kthxbye /kthxbye
 EXPOSE 8080
