@@ -36,7 +36,7 @@ matching firing alerts. Silences will be allowed to expire only if they don't
 match any alert.
 
 - A new alert starts to fire in Alertmanager
-- User creates a silence for it with a comment that beings with predefined
+- User creates a silence for it with a comment that begins with predefined
   prefix and short duration
 - kthxbye will continuously poll alerts and silences from Alertmanager:
   - Get the list of all silences
